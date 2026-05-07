@@ -1,7 +1,0 @@
-shell
-concat
-sum
-maxlen
-main
-*.o
-.DS_Store

@@ -1,0 +1,5 @@
+ls
+sum 1 2 3
+ls | sort
+echo hello > out.txt
+cat < out.txt | wc

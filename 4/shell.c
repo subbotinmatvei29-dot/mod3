@@ -19,9 +19,9 @@ int main(void) {
 
     while (1) {
         printf(">>> ");
-        fflush(stdout);  // сразу показать приглашение
+        fflush(stdout);  
 
-        // читаем строку из stdin
+        
         if (fgets(line, sizeof(line), stdin) == NULL) {
             printf("\n");
             break;  // конец ввода, выходим из shell
@@ -112,14 +112,14 @@ int main(void) {
                     break;
                 }
             } else if (strcmp(tokens[i], "<") == 0) {
-                // после < обязательно должно быть имя файла
+                // после < обязательно должно быть имя файла(чтение данных из файла)
                 if (i + 1 >= token_count) {
                     fprintf(stderr, "Ошибка: нет файла после <\n");
                     error = 1;
                     break;
                 }
                 cmds[cmd_index].input_file = tokens[++i];
-            } else if (strcmp(tokens[i], ">") == 0) {
+            } else if (strcmp(tokens[i], ">") == 0) { // вывод файла
                 // после > обязательно должно быть имя файла
                 if (i + 1 >= token_count) {
                     fprintf(stderr, "Ошибка: нет файла после >\n");
@@ -156,11 +156,11 @@ int main(void) {
         pid_t pids[16];     // pid всех запущенных дочерних процессов
         int started = 0;    // сколько процессов реально успели создать
 
-        // запускаем все команды конвейера слева направо
+        // (несколько процессов подряд)
         for (int i = 0; i < cmd_count; i++) {
             int fd[2] = {-1, -1};  // pipe для связи текущей команды со следующей
 
-            // pipe нужен только если команда не последняя
+            // pipe нужен только если команда не последняя(вывод одного процесса на ввод другого)
             if (i < cmd_count - 1) {
                 if (pipe(fd) == -1) {
                     perror("pipe");
@@ -190,11 +190,11 @@ int main(void) {
                     dup2(in, 0);   // перенаправляем stdin на файл
                     close(in);
                 } else if (prev_fd != -1) {
-                    // иначе, если это не первая команда, stdin берём из предыдущего pipe
+                    // Направление ввода следующей команды из предыдущего pipe:
                     dup2(prev_fd, 0);
                 }
 
-                // если указан файл после >, то stdout направляем в него
+                // если указан файл после >, то stdout направляем в него(запуск процесаа , программа пишет в файл)
                 if (cmds[i].output_file != NULL) {
                     int out = open(cmds[i].output_file,
                                    O_WRONLY | O_CREAT | O_TRUNC, 0644);
@@ -236,7 +236,7 @@ int main(void) {
                 exit(1);
 
             } else {
-                // ===== родительский процесс =====
+                //  родительский процесс
 
                 pids[started++] = pid;  // запоминаем pid для waitpid
 

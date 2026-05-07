@@ -19,3 +19,13 @@
 
 ```bash
 make
+
+
+ls
+ls | sort
+echo hello > out.txt
+cat out.txt
+cat < out.txt | wc
+sum 1 2 3
+concat hello world
+maxlen abc abcd xy
